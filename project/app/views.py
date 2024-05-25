@@ -28,6 +28,7 @@ def registerdata(request):
         password = request.POST.get('Password')
         cpassword = request.POST.get('Cpassword')
 
+
         data = Student.objects.filter(Email=email)
         if data:
             msg = 'user already exit'
@@ -66,10 +67,15 @@ def logindata(request):
         passs = data.Password
         # print(passs)
         if passs == password:
-            Nm = data.Name
-            Em = data.Email
-            Cm = data.Contact
-            Ps = data.Password
+            request.session['name']=data.Name
+            request.session['email']=data.Email
+            request.session['contact']=data.Contact
+            request.session['password']=data.Password
+
+            Nm = request.session.get('name')
+            Em = request.session.get('email')
+            Cm = request.session.get('contact')
+            Ps = request.session.get('password')
             context = {
                 'Nm':Nm,
                 'Em':Em,
@@ -86,7 +92,6 @@ def logindata(request):
         msg = "enter valid Email_ID"
         return render(request,'login.html',{'key':msg})
 
-
 def logout(request):
     return render(request,'home.html')
 
@@ -101,13 +106,17 @@ def Querydata(request):
         Query.objects.create(Email=email,
                                  Title = title,
                                  discription = description)
-        data = Student.objects.get(Email=email)
+        
+        Nm = request.session.get('name')
+        Em = request.session.get('email')
+        Cm = request.session.get('contact')
+        Ps = request.session.get('password')
         context = {
-                'Nm':data.Name,
-                'Em':data.Email,
-                'Cm':data.Contact,
-                'Ps':data.Password
-            }
+            'Nm':Nm,
+            'Em':Em,
+            'Cm':Cm,
+            'Ps':Ps
+        }
         return render(request,'dashboard.html',{'context':context})
     
 def Show(request):
@@ -115,13 +124,16 @@ def Show(request):
     if request.method == "POST":
         email = request.POST.get('email')
         QueryData = Query.objects.filter(Email = email)
-        data = Student.objects.get(Email=email)
+        Nm = request.session.get('name')
+        Em = request.session.get('email')
+        Cm = request.session.get('contact')
+        Ps = request.session.get('password')
         context = {
-                'Nm':data.Name,
-                'Em':data.Email,
-                'Cm':data.Contact,
-                'Ps':data.Password,
-            }
+            'Nm':Nm,
+            'Em':Em,
+            'Cm':Cm,
+            'Ps':Ps
+        }
         return render(request,'dashboard.html',{'context':context,'QueryData':QueryData})
         
         
@@ -131,50 +143,53 @@ def delete(request,pk,ml):
    
         QueryData = Query.objects.filter(Email = ml)
         data = Student.objects.get(Email= ml)
+        Nm = request.session.get('name')
+        Em = request.session.get('email')
+        Cm = request.session.get('contact')
+        Ps = request.session.get('password')
         context = {
-                'Nm':data.Name,
-                'Em':data.Email,
-                'Cm':data.Contact,
-                'Ps':data.Password,
-            }
+            'Nm':Nm,
+            'Em':Em,
+            'Cm':Cm,
+            'Ps':Ps
+        }
         return render(request,'dashboard.html',{'context':context,'QueryData':QueryData})
 
 def editpage(request,pk):
     data1 = Query.objects.get(id = pk)
     email = data1.Email
-    data2 = Student.objects.get(Email = email)
-    name = data2.Name
-    email = data2.Email
-    contact = data2.Contact
-    password = data2.Password
+ 
+    Nm = request.session.get('name')
+    Em = request.session.get('email')
+    Cm = request.session.get('contact')
+    Ps = request.session.get('password')
     context = {
-        'Nm':name,
-        'Em':email,
-        'Cm':contact,
-        'Ps':password
+        'Nm':Nm,
+        'Em':Em,
+        'Cm':Cm,
+        'Ps':Ps
     }
     alldata = Query.objects.filter(Email = email)
     return render(request,'dashboard.html',{'key1':alldata,'context':context,'key2':data1})
 
 def updatedata(request,pk):
     print(request.POST)
-    print(pk)
+    email = request.POST.get('email')
     udata = Query.objects.get(id =pk)
     udata.Email = request.POST['email']
     udata.Title = request.POST['title']
     udata.discription = request.POST['description']
     
     udata.save()
-    data = Student.objects.get(Email = udata.Email)
-    name = data.Name
-    email = data.Email
-    contact = data.Contact
-    password = data.Password
+    Nm = request.session.get('name')
+    Em = request.session.get('email')
+    Cm = request.session.get('contact')
+    Ps = request.session.get('password')
     context = {
-        'Nm':name,
-        'Em':email,
-        'Cm':contact,
-        'Ps':password
+        'Nm':Nm,
+        'Em':Em,
+        'Cm':Cm,
+        'Ps':Ps
     }
     alldata = Query.objects.filter(Email = email)
     return render(request,'dashboard.html',{'key1':alldata,'context':context})
